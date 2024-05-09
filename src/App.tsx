@@ -7,9 +7,22 @@ type FormField = {
 };
 
 function App() {
-  const { register, handleSubmit, formState:{errors} } = useForm<FormField>();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors,isSubmitting }
+  } = useForm<FormField>();
 
-  const onSubmit: SubmitHandler<FormField> = (data) => {
+  const onSubmit: SubmitHandler<FormField> = async (data) => {
+    try {
+      await new Promise((res => setTimeout(res, 2000)))
+      throw new Error();
+    } catch (e) {
+      setError("root", {
+        message: "email is already taken"
+      })
+    }
     console.log(data);
   };
 
@@ -42,8 +55,9 @@ function App() {
             placeholder="Password"
           />
           {errors.password && <div className="text-red-500">{errors.password.message}</div>}
-          <button type="submit" className="bg-white p-3 hover:bg-slate-500">
-            Submit
+          {errors.root && <div className="text-red-500">{errors.root.message}</div>}
+          <button disabled={ isSubmitting } type="submit">
+            {isSubmitting ? 'Loading...':'Submit'}
           </button>
         </div>
       </form>
